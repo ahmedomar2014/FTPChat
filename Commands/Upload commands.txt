@@ -1,0 +1,6 @@
+git lfs install
+git lfs track "*.bin"
+git add .gitattributes
+git add .
+git commit -m "Track large files with Git LFS"
+git push
