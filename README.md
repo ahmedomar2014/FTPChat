@@ -17,7 +17,7 @@ Designed for legacy-class deployment, FTPChat runs on low-power routers with USB
 
 ## Features
 
-- 12-layer encryption for secure payloads  
+- 24-layer encryption for secure payloads  
 - File-based transport over FTP  
 - Fully functional in a single `.py` file  
 - Designed for legacy-class deployment  
