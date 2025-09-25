@@ -1,14 +1,16 @@
-# *FTPChat - Encrypted FTP-based Messaging Protocol
-# *Version 1.2 — September 2025
-# *Author: Ahmed Omar Saad
-# *Contact: ahmedomardev@outlook.com
-# *License: Custom MIT — Commercial use requires written permission
-# *All rights to the name “FTPChat” and its protocol specification are retained by the author.
-# *For more information, Check the LICENSE.
+"""
+*FTPChat - Encrypted FTP-based Messaging Protocol
+*Version 1.2 — September 2025
+*Author: Ahmed Omar Saad
+*Contact: ahmedomardev@outlook.com
+*License: Custom MIT — Commercial use requires written permission
+*All rights to the name “FTPChat” and its protocol specification are retained by the author.
+*For more information, Check the `LICENSE` file."""
 
 from datetime import datetime
 from ftplib import FTP
 from os import name, system
+
 
 # !The start of the characters list and key for mac encryption layers
 
@@ -1475,6 +1477,9 @@ def mac11_decode(text):
     return "".join(result)
 
 
+# ---The end for the encryption and decryption functions - Number (11)---
+
+
 # !---The end for the all encryption and decryption functions---
 
 
@@ -1518,6 +1523,9 @@ def encrypt(text):
 def decrypt(text):
     """Doubled 12 Layer MAC decryption"""
     return str(all_mac_decryption(all_mac_decryption(text)))
+
+
+# !---The sending and reading messages functions---
 
 
 def send_message(
@@ -1581,20 +1589,22 @@ def multiline_input(prompt):
         if line.upper() == "REF":
             line = "REFRESH"
             break
+        if line.upper() == "CLS":
+            system("cls" if name == "nt" else "clear")
+            break
         lines.append(line)
     return "".join(lines)
 
 
 print(
     r"""
-                                        \-\
-    ________________  ________          __ \-\
-   / ____/_  __/ __ \/ ____/ /_  ____ _/ /_   \-\
-  / /_    / / / /_/ / /   / __ \/ __ `/ __/      \-\
- / __/   / / / ____/ /___/ / / / /_/ / /_        /-/
+    ________________  ________          ____ \-\
+   / ____/_  __/ __ \/ ____/ /_  ____ _/ /    \-\ 
+  / /_    / / / /_/ / /   / __ \/ __ `/ __/    \-\
+ / __/   / / / ____/ /___/ / / / /_/ / /_      /-/
 /_/     /_/ /_/    \____/_/ /_/\__,_/\__/     /-/
-                                           /-/   
-                                        /-/"""
+                                             /-/ 
+"""
 )
 
 all_filled = False
@@ -1634,20 +1644,22 @@ while True:
     all_filled = True
     break
 
+
 if all_filled:
     print(
         """
 Notes before start messaging:
 1. Type 'END' to finish your message.
 2. Type 'REF' to refresh messages.
-3. Don't turn off your FTP Server while using this chat.
-4. Messages are encrypted for security.
-5. To secure your chat, use a unique chat file name, and share the file name with the participant.
+3. Type 'CLS' to clear the terminal.
+4. Don't turn off your FTP Server while using this chat.
+5. Messages are encrypted for security.
+6. To secure your chat, use a unique chat file name, and share the file name with the participants.
 """
     )
 
     while True:
-        system("cls" if name == "nt" else "clear")
+
         read_messages(ftp_host, ftp_user, ftp_pass, chat_input, chat_name)
         message = multiline_input("Type your message:\n")
         send_message(
