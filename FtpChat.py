@@ -1,6 +1,6 @@
 """
 *FTPChat - Encrypted FTP-based Messaging Protocol
-*Version 1.2 — September 2025
+*Version 1.3 — September 2025
 *Author: Ahmed Omar Saad
 *Contact: ahmedomardev@outlook.com
 *License: Custom MIT — Commercial use requires written permission
@@ -10,7 +10,6 @@
 from datetime import datetime
 from ftplib import FTP
 from os import name, system
-
 
 # !The start of the characters list and key for mac encryption layers
 
