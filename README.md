@@ -1,7 +1,7 @@
 # FTPChat (File Transfer Chatting Project)
 
 **Encrypted FTP-Based Messaging Protocol**  
-**Version 1.2 — September 2025**  
+**Version 1.3 — October 2025**  
 **Author:** Ahmed Omar Saad  
 **Contact:** ahmedomardev@outlook.com
 

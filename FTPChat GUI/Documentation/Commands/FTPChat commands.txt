@@ -1,0 +1,5 @@
+192.168.1.1
+admin
+*700800*Ahmed
+user1
+chat1
