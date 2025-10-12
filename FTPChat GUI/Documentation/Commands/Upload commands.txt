@@ -1,6 +1,0 @@
-git clone https://github.com/ahmedomar2014/FTPChat.git
-git config --global user.email "ahmedomardev@outlook.com"
-git config --global user.name "ahmedomar2014"
-git add .
-git commit -m 'init'
-git push
