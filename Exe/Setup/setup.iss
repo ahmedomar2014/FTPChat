@@ -2,15 +2,15 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "FTPChat"
-#define MyAppVersion "1.3"
-#define MyAppPublisher "Ahmed Omar Saad"
-#define MyAppURL "https://ahmed-omar-software-projects.mydurable.com/ "
+#define MyAppVersion "1.4"
+#define MyAppPublisher "AOSP"
+#define MyAppURL "https://ahmed-omar-software-projects.mydurable.com/"
 #define MyAppExeName "FtpChat.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{933C1B02-DF7E-431E-9B63-274019E1847C}
+AppId={{E77F836C-BD6C-4F6F-BA25-909A1807941E}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -29,12 +29,12 @@ ArchitecturesAllowed=x64compatible
 ; the 64-bit view of the registry.
 ArchitecturesInstallIn64BitMode=x64compatible
 DisableProgramGroupPage=yes
-LicenseFile=D:\Projects\Python\FtpChat\FtpChat 1.3\FTPChat Terminal\Exe\Setup\LICENSE.txt
+LicenseFile=D:\Projects\Python\FtpChat\FtpChat 1.4\Exe\Setup\LICENSE.txt
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputBaseFilename=mysetup
-SetupIconFile=D:\Projects\Python\FtpChat\FtpChat 1.3\FTPChat Terminal\Exe\Setup\SetupClassicIcon.ico
+OutputBaseFilename=setup
+SetupIconFile=D:\Projects\Python\FtpChat\FtpChat 1.4\Exe\Setup\SetupClassicIcon.ico
 SolidCompression=yes
 WizardStyle=modern
 
@@ -45,7 +45,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\Projects\Python\FtpChat\FtpChat 1.3\FTPChat Terminal\Exe\Setup\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\Projects\Python\FtpChat\FtpChat 1.4\Exe\Setup\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
