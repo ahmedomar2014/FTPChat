@@ -4,7 +4,7 @@ Version 1.4 — November 2025
 Type: Custom-styled MIT LICENSE
 Author: Ahmed Omar Saad
 Contact: ahmedomardev@outlook.com
-Copyright (c) 2025 Ahmed Omar Saad
+FTPChat  © 2025/5/20 by Ahmed Omar Saad is licensed under CC BY-NC-SA 4.0. To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 *Permission is hereby granted, free of charge, to any person obtaining a copy
 *of this software and associated documentation files (the “Software”), to deal
@@ -28,10 +28,33 @@ Copyright (c) 2025 Ahmed Omar Saad
 *This license applies to all source code, documentation, and project specifications included in the FTPChat project.
 """
 
-import zlib
 from datetime import datetime
-from ftplib import FTP
-from os import name, system
+from ftplib import FTP, FTP_TLS
+from threading import Thread
+from webbrowser import open as open_link
+
+from ttkbootstrap import (
+    Window,
+    Button,
+    Label,
+    Entry,
+    Menu,
+    NORMAL,
+    DISABLED,
+    StringVar,
+    ScrolledText,
+)
+from tkinter import messagebox
+from zlib import compress, decompress
+from base64 import b64encode, b64decode
+
+
+def help_func():
+    open_link("ahmed-omar-software-projects.mydurable.com")
+
+
+# !The start of the characters list and key for mac encryption layers
+
 
 CHARACTERS = (
     "a",
@@ -1191,484 +1214,254 @@ KEY_FOR_MAC_11 = (
 
 
 # !---The start for the all encryption and decryption functions---
-def main():
+
+
+def reverser(text):
+    """This function reverses the text"""
+    return text[::-1]
+
+
+# ---The end of reverser function.---
+
+
+def mac_encode(text, key):
+    """Generic Mono-Alphabetic cipher encoder with given key."""
+    result = []
+    for char in text:
+        if char in CHARACTERS:
+            index = CHARACTERS.index(char)
+            result.append(key[index])
+        else:
+            result.append(char)
+    return "".join(result)
+
+
+def mac_decode(text, key):
+    """Generic Mono-Alphabetic cipher decoder with given key."""
+    result = []
+    for char in text:
+        if char in key:
+            index = key.index(char)
+            result.append(CHARACTERS[index])
+        else:
+            result.append(char)
+    return "".join(result)
+
+
+def all_mac_encryption(text):
+    """12 Layers combined MAC encryption"""
+    text = mac_encode(text, KEY_FOR_MAC_5)
+    text = reverser(text)
+    text = mac_encode(text, KEY_FOR_MAC_4)
+    text = mac_encode(text, KEY_FOR_MAC_2)
+    text = mac_encode(text, KEY_FOR_MAC_1)
+    text = mac_encode(text, KEY_FOR_MAC_3)
+    text = mac_encode(text, KEY_FOR_MAC_8)
+    text = mac_encode(text, KEY_FOR_MAC_7)
+    text = mac_encode(text, KEY_FOR_MAC_9)
+    text = mac_encode(text, KEY_FOR_MAC_6)
+    text = mac_encode(text, KEY_FOR_MAC_11)
+    return mac_encode(text, KEY_FOR_MAC_10)
+
+
+def all_mac_decryption(text):
+    """12 Layers combined MAC decryption"""
+    text = mac_decode(text, KEY_FOR_MAC_10)
+    text = mac_decode(text, KEY_FOR_MAC_11)
+    text = mac_decode(text, KEY_FOR_MAC_6)
+    text = mac_decode(text, KEY_FOR_MAC_9)
+    text = mac_decode(text, KEY_FOR_MAC_7)
+    text = mac_decode(text, KEY_FOR_MAC_8)
+    text = mac_decode(text, KEY_FOR_MAC_3)
+    text = mac_decode(text, KEY_FOR_MAC_1)
+    text = mac_decode(text, KEY_FOR_MAC_2)
+    text = mac_decode(text, KEY_FOR_MAC_4)
+    text = reverser(text)
+    return mac_decode(text, KEY_FOR_MAC_5)
+
+
+def encrypt(text: str) -> str:
+    """Doubled 12 Layer MAC encryption + compression"""
+    encrypted = all_mac_encryption(all_mac_encryption(text))
+    compressed = compress(encrypted.encode("utf-8"))
+    return b64encode(compressed).decode("utf-8")
+
+
+def decrypt(text: str) -> str:
+    """Doubled 12 Layer MAC decryption + decompression"""
+    compressed = b64decode(text.encode("utf-8"))
+    encrypted = decompress(compressed).decode("utf-8")
+    return all_mac_decryption(all_mac_decryption(encrypted))
+
+
+# !---The sending and reading messages functions---
+
+
+def send_message_non(username, message):
+    msg_e = encrypt(
+        f"{datetime.now().strftime('%Y-%m-%d %H:%M')}:{username}: {message}"
+    )
+    msg.delete("1.0", "end")
+    ftp_host = FTP_HOST.get()
+    ftp_user = FTP_USER.get()
+    ftp_pass = FTP_PASS.get()
+    chat_name = f"{chat_file_name.get()}.txt"
+    local_temp = "chat_temp.txt"
+
     try:
+        try:
+            ftp = FTP_TLS(ftp_host)
+            ftp.login(ftp_user, ftp_pass)
+        except Exception:
+            ftp = FTP(ftp_host)
+            ftp.login(ftp_user, ftp_pass)
 
-        def reverser(text):
-            """This function reverses the text"""
-            return text[::-1]
+        try:
+            with open(local_temp, "wb") as f:
+                ftp.retrbinary(f"RETR " + chat_name, f.write)
+        except Exception:
+            pass
 
-        # ---The end of reverser function.---
+        with open(local_temp, "w", encoding="utf-8") as f:
+            f.write(f"{msg_e}\n")
 
-        def mac1_encode(text):
-            """Encryption layer for Mono-Alphabetic cipher - Number (1)."""
-            result = []
-            for char in text:
-                if char in CHARACTERS:
-                    index = CHARACTERS.index(char)
-                    result.append(KEY_FOR_MAC_1[index])
-                else:
-                    result.append(char)
-            return "".join(result)
+        with open(local_temp, "rb") as f:
+            ftp.storbinary(f"APPE " + chat_name, f)
 
-        def mac1_decode(text):
-            """Decryption layer for Mono-Alphabetic cipher - Number (1)."""
-            result = []
-            for char in text:
-                if char in KEY_FOR_MAC_1:
-                    index = KEY_FOR_MAC_1.index(char)
-                    result.append(CHARACTERS[index])
-                else:
-                    result.append(char)
-            return "".join(result)
+        ftp.quit()
+        read_messages()
 
-        # ---The end for the encryption and decryption functions - Number (1)---
+    except Exception as error:
+        messagebox.showerror("Error sending message", str(error))
 
-        def mac2_encode(text):
-            """Encryption layer for Mono-Alphabetic cipher - Number (2)."""
-            result = []
-            for char in text:
-                if char in CHARACTERS:
-                    index = CHARACTERS.index(char)
-                    result.append(KEY_FOR_MAC_2[index])
-                else:
-                    result.append(char)
-            return "".join(result)
 
-        def mac2_decode(text):
-            """Decryption layer for Mono-Alphabetic cipher - Number (2)."""
-            result = []
-            for char in text:
-                if char in KEY_FOR_MAC_2:
-                    index = KEY_FOR_MAC_2.index(char)
-                    result.append(CHARACTERS[index])
-                else:
-                    result.append(char)
-            return "".join(result)
+def send_messages(username, message):
+    Thread(target=send_message_non, args=(
+        username, message), daemon=True).start()
 
-        # ---The end for the encryption and decryption functions - Number (2)---
 
-        def mac3_encode(text):
-            """Encryption layer for Mono-Alphabetic cipher - Number (3)."""
-            result = []
-            for char in text:
-                if char in CHARACTERS:
-                    index = CHARACTERS.index(char)
-                    result.append(KEY_FOR_MAC_3[index])
-                else:
-                    result.append(char)
-            return "".join(result)
+def read_messages_non():
+    ftp_host = FTP_HOST.get()
+    ftp_user = FTP_USER.get()
+    ftp_pass = FTP_PASS.get()
+    chat_name = f"{chat_file_name.get()}.txt"
+    local_temp = "chat_temp.txt"
 
-        def mac3_decode(text):
-            """Decryption layer for Mono-Alphabetic cipher - Number (3)."""
-            result = []
-            for char in text:
-                if char in KEY_FOR_MAC_3:
-                    index = KEY_FOR_MAC_3.index(char)
-                    result.append(CHARACTERS[index])
-                else:
-                    result.append(char)
-            return "".join(result)
+    try:
+        try:
+            ftp = FTP_TLS(ftp_host)
+            ftp.login(ftp_user, ftp_pass)
+        except Exception as e:
+            ftp = FTP(ftp_host)
+            ftp.login(ftp_user, ftp_pass)
 
-        # ---The end for the encryption and decryption functions - Number (3)---
+        with open(local_temp, "wb") as file:
+            ftp.retrbinary(f"RETR {chat_name}", file.write)
+        ftp.quit()
 
-        def mac4_encode(text):
-            """Encryption layer for Mono-Alphabetic cipher - Number (4)."""
-            result = []
-            for char in text:
-                if char in CHARACTERS:
-                    index = CHARACTERS.index(char)
-                    result.append(KEY_FOR_MAC_4[index])
-                else:
-                    result.append(char)
-            return "".join(result)
+        with open(local_temp, "r", encoding="utf-8") as file:
+            lines = file.readlines()
 
-        def mac4_decode(text):
-            """Decryption layer for Mono-Alphabetic cipher - Number (4)."""
-            result = []
-            for char in text:
-                if char in KEY_FOR_MAC_4:
-                    index = KEY_FOR_MAC_4.index(char)
-                    result.append(CHARACTERS[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        # ---The end for the encryption and decryption functions - Number (4)---
-
-        def mac5_encode(text):
-            """Encryption layer for Mono-Alphabetic cipher - Number (5)."""
-            result = []
-            for char in text:
-                if char in CHARACTERS:
-                    index = CHARACTERS.index(char)
-                    result.append(KEY_FOR_MAC_5[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        def mac5_decode(text):
-            """Decryption layer for Mono-Alphabetic cipher - Number (5)."""
-            result = []
-            for char in text:
-                if char in KEY_FOR_MAC_5:
-                    index = KEY_FOR_MAC_5.index(char)
-                    result.append(CHARACTERS[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        # ---The end for the encryption and decryption functions - Number (5)---
-
-        def mac6_encode(text):
-            """Encryption layer for Mono-Alphabetic cipher - Number (6)."""
-            result = []
-            for char in text:
-                if char in CHARACTERS:
-                    index = CHARACTERS.index(char)
-                    result.append(KEY_FOR_MAC_6[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        def mac6_decode(text):
-            """Decryption layer for Mono-Alphabetic cipher - Number (6)."""
-            result = []
-            for char in text:
-                if char in KEY_FOR_MAC_6:
-                    index = KEY_FOR_MAC_6.index(char)
-                    result.append(CHARACTERS[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        # ---The end for the encryption and decryption functions - Number (6)---
-
-        def mac7_encode(text):
-            """Encryption layer for Mono-Alphabetic cipher - Number (7)."""
-            result = []
-            for char in text:
-                if char in CHARACTERS:
-                    index = CHARACTERS.index(char)
-                    result.append(KEY_FOR_MAC_7[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        def mac7_decode(text):
-            """Decryption layer for Mono-Alphabetic cipher - Number (7)."""
-            result = []
-            for char in text:
-                if char in KEY_FOR_MAC_7:
-                    index = KEY_FOR_MAC_7.index(char)
-                    result.append(CHARACTERS[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        # ---The end for the encryption and decryption functions - Number (7)---
-
-        def mac8_encode(text):
-            """Encryption layer for Mono-Alphabetic cipher - Number (8)."""
-            result = []
-            for char in text:
-                if char in CHARACTERS:
-                    index = CHARACTERS.index(char)
-                    result.append(KEY_FOR_MAC_8[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        def mac8_decode(text):
-            """Decryption layer for Mono-Alphabetic cipher - Number (8)."""
-            result = []
-            for char in text:
-                if char in KEY_FOR_MAC_8:
-                    index = KEY_FOR_MAC_8.index(char)
-                    result.append(CHARACTERS[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        # ---The end for the encryption and decryption functions - Number (8)---
-
-        def mac9_encode(text):
-            """Encryption layer for Mono-Alphabetic cipher - Number (9)."""
-            result = []
-            for char in text:
-                if char in CHARACTERS:
-                    index = CHARACTERS.index(char)
-                    result.append(KEY_FOR_MAC_9[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        def mac9_decode(text):
-            """Decryption layer for Mono-Alphabetic cipher - Number (9)."""
-            result = []
-            for char in text:
-                if char in KEY_FOR_MAC_9:
-                    index = KEY_FOR_MAC_9.index(char)
-                    result.append(CHARACTERS[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        # ---The end for the encryption and decryption functions - Number (9)---
-
-        def mac10_encode(text):
-            """Encryption layer for Mono-Alphabetic cipher - Number (10)."""
-            result = []
-            for char in text:
-                if char in CHARACTERS:
-                    index = CHARACTERS.index(char)
-                    result.append(KEY_FOR_MAC_10[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        def mac10_decode(text):
-            """Decryption layer for Mono-Alphabetic cipher - Number (10)."""
-            result = []
-            for char in text:
-                if char in KEY_FOR_MAC_10:
-                    index = KEY_FOR_MAC_10.index(char)
-                    result.append(CHARACTERS[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        # ---The end for the encryption and decryption functions - Number (10)---
-
-        def mac11_encode(text):
-            """Encryption layer for Mono-Alphabetic cipher - Number (11)."""
-            result = []
-            for char in text:
-                if char in CHARACTERS:
-                    index = CHARACTERS.index(char)
-                    result.append(KEY_FOR_MAC_11[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        def mac11_decode(text):
-            """Decryption layer for Mono-Alphabetic cipher - Number (11)."""
-            result = []
-            for char in text:
-                if char in KEY_FOR_MAC_11:
-                    index = KEY_FOR_MAC_11.index(char)
-                    result.append(CHARACTERS[index])
-                else:
-                    result.append(char)
-            return "".join(result)
-
-        # ---The end for the encryption and decryption functions - Number (11)---
-
-        # !---The end for the all encryption and decryption functions---
-
-        def all_mac_encryption(text):
-            """12 Layers combined MAC encryption"""
-            layer1 = mac5_encode(text)
-            layer2 = reverser(layer1)
-            layer3 = mac4_encode(layer2)
-            layer4 = mac2_encode(layer3)
-            layer5 = mac1_encode(layer4)
-            layer6 = mac3_encode(layer5)
-            layer7 = mac8_encode(layer6)
-            layer8 = mac7_encode(layer7)
-            layer9 = mac9_encode(layer8)
-            layer10 = mac6_encode(layer9)
-            layer11 = mac11_encode(layer10)
-            return str(mac10_encode(layer11))
-
-        def all_mac_decryption(text):
-            """12 Layers combined MAC decryption"""
-            layer1 = mac10_decode(text)
-            layer2 = mac11_decode(layer1)
-            layer3 = mac6_decode(layer2)
-            layer4 = mac9_decode(layer3)
-            layer5 = mac7_decode(layer4)
-            layer6 = mac8_decode(layer5)
-            layer7 = mac3_decode(layer6)
-            layer8 = mac1_decode(layer7)
-            layer9 = mac2_decode(layer8)
-            layer10 = mac4_decode(layer9)
-            layer11 = reverser(layer10)
-            return str(mac5_decode(layer11))
-
-        def encrypt(text) -> bytes:
-            text: str
-            compressed = zlib.compress(text.encode("utf-8"))
-            encrypted_text = all_mac_encryption(
-                all_mac_encryption(compressed.decode("latin1"))
-            )
-            return encrypted_text.encode("latin1")
-
-        def decrypt(data) -> str:
-            data: bytes
-            encrypted_text = data.decode("latin1")
-            decompressed_str = all_mac_decryption(all_mac_decryption(encrypted_text))
-            decompressed_bytes = decompressed_str.encode("latin1")
-            return zlib.decompress(decompressed_bytes).decode("utf-8")
-
-        # !---The sending and reading messages functions---
-
-        def send_message(
-                username, message_param, ftp_host, ftp_user, ftp_pass, chat_input, chat_name_param
-        ):
-            """Send a message to the chat file on the FTP server."""
+        out_lines = []
+        for line in lines:
             try:
-                if message_param == "REFRESH":
-                    read_messages(ftp_host, ftp_user, ftp_pass, chat_input, chat_name_param)
-                else:
-                    msg = encrypt(f"{datetime.now()}:{username}: {message_param}\n")
-                    ftp = FTP(ftp_host)
-                    ftp.login(ftp_user, ftp_pass)
-                    with open(chat_input, "wb") as file:
-                        ftp.retrbinary(f"RETR {chat_name_param}", file.write)
+                out_lines.append(decrypt(line.strip()))
+            except Exception:
+                out_lines.append(line.strip())
 
-                    with open(chat_input, "a", encoding="utf-8") as file:
-                        file.write(f"{msg}\n")
+        message_text = "\n".join(
+            out_lines) if out_lines else "No messages yet."
 
-                    with open(chat_input, "rb") as file:
-                        ftp.storbinary(f"STOR {chat_name_param}", file)
+        chat_notes.config(state=NORMAL)
+        chat_notes.delete("1.0", "end")
+        chat_notes.insert("end", message_text)
+        chat_notes.see("end")
+        chat_notes.config(state=DISABLED)
 
-                    ftp.quit()
-            except Exception as error:
-                print(f"Error sending message: {error}")
-
-        def read_messages(ftp_host, ftp_user, ftp_pass, chat_input, chat_name_param):
-            """Read messages from the chat file on the FTP server."""
-            try:
-                with FTP(ftp_host) as ftp:
-                    ftp.login(ftp_user, ftp_pass)
-                    with open(chat_input, "wb") as file:
-                        ftp.retrbinary(f"RETR {chat_name_param}", file.write)
-                with open(chat_input, "r", encoding="utf-8") as file:
-                    lines = file.readlines()
-                    if not lines:
-                        print("No messages yet.")
-                        return
-                    print("------Messages------")
-                    for line in lines:
-                        decrypted_line = decrypt(line.strip())
-                        print(decrypted_line)
-            except Exception as error:
-                print(f"Error reading messages. ({error})")
-                input()
-
-        def multiline_input(prompt):
-            """Get multiline input from the user until 'END' is entered.
-               Special commands:
-               - END: finish and return the message
-               - REF: return the special string 'REFRESH'
-               - CLS: clear the terminal and continue typing
-            """
-            print(prompt)
-            lines = []
-
-            while True:
-                line = input()
-                if line.upper() == "END":
-                    break
-
-                if line.upper() == "REF":
-                    return "REFRESH"
-
-                if line.upper() == "CLS":
-                    system("cls" if name == "nt" else "clear")
-                    continue
-
-                lines.append(line)
-
-            return "".join(lines)
-
-        print(
-    r"""
-    ________________  ________          ____ \-\
-   / ____/_  __/ __ \/ ____/ /_  ____ _/ /    \-\ 
-  / /_    / / / /_/ / /   / __ \/ __ `/ __/    \-\
- / __/   / / / ____/ /___/ / / / /_/ / /_      /-/
-/_/     /_/ /_/    \____/_/ /_/\__,_/\__/     /-/
-                                             /-/ 
-Version 1.4
-"""
-        )
-
-        all_filled = False
-        ftp_user_input = ""
-        ftp_pass_input = ""
-        chat_input_user = ""
-        chat_name = ""
-        username_input = ""
-        while True:
-            ftp_host_input: str = input("Please, type the FTP host:\n")
-            if not ftp_host_input:
-                print("No Host entered, Exiting the app")
-                input()
-                break
-
-            ftp_user_input: str = input("Please, type the FTP username:\n")
-            if not ftp_user_input:
-                print("No FTP User entered, Exiting the app")
-                input()
-                break
-
-            ftp_pass_input: str = input("Please, type the FTP password:\n")
-            if not ftp_pass_input:
-                print("No Password entered, Exiting the app")
-                input()
-                break
-
-            username_input: str = input("Please, type your username:\n")
-            if not username_input:
-                username_input = "Anonymous"
-                print("Username is empty, using 'Anonymous' as username.")
-
-            chat_input_user: str = input("Please, type the chat file name:\n") + ".txt"
-            if not chat_input_user:
-                print("No chat file name input, exiting the program")
-                input()
-                break
-
-            chat_name = f"/usb1_1/{chat_input_user}"
-            all_filled = True
-            break
-
-        if all_filled:
-            print(
-                """
-        Notes before start messaging:
-        1. Type 'END' to finish your message.
-        2. Type 'REF' to refresh messages.
-        3. Type 'CLS' to clear the terminal.
-        4. Don't turn off your FTP Server while using this chat.
-        5. Messages are encrypted for security.
-        6. To secure your chat, use a unique chat file name, and share the file name with the participants.
-        """
-            )
-
-            while True:
-                read_messages(
-                    ftp_host_input,
-                    ftp_user_input,
-                    ftp_pass_input,
-                    chat_input_user,
-                    chat_name,
-                )
-                message = multiline_input("Type your message:\n")
-                send_message(
-                    username_input,
-                    message,
-                    ftp_host_input,
-                    ftp_user_input,
-                    ftp_pass_input,
-                    chat_input_user,
-                    chat_name,
-                )
-    except Exception as main_error:
-        print(f"An error occurred in the main function: {main_error}")
-        input()
+    except Exception as error:
+        messagebox.showerror("Error reading messages", str(error))
 
 
-main()
+def read_messages():
+    Thread(target=read_messages_non, daemon=True).start()
+
+
+def auto_refresh_func():
+    if FTP_HOST.get() and FTP_USER.get() and FTP_PASS.get() and chat_file_name.get():
+        read_messages()
+        main.after(5000, auto_refresh_func)
+    else:
+        messagebox.showwarning("Warning", "Please, fill in all details")
+
+
+def start_loop():
+    send_butt.config(state=NORMAL)
+    auto_refresh_func()
+    done_butt.config(state=DISABLED)
+    done_butt.config(text="Loop Started")
+
+
+main = Window(themename="darkly")
+main.title("TLock")
+main.geometry("1920x1080")
+main.state("zoomed")
+menubar = Menu(main)
+main.config(menu=menubar)
+
+# Menubar
+accessibility_menu = Menu(menubar, tearoff=False)
+accessibility_menu.add_command(label="Help", command=help_func)
+accessibility_menu.add_command(label="Exit", command=lambda: main.destroy())
+menubar.add_cascade(label="Accessibility", menu=accessibility_menu)
+
+# Widgets
+
+FTP_HOST = StringVar()
+Label(main, text="Host:").place(x=5, y=5)
+Entry(main, textvariable=FTP_HOST, width=225).place(x=100, y=5)
+
+FTP_USER = StringVar()
+Label(main, text="FTP User:").place(x=5, y=40)
+Entry(main, textvariable=FTP_USER, width=225).place(x=100, y=40)
+
+FTP_PASS = StringVar()
+Label(main, text="Password:").place(x=5, y=75)
+Entry(main, textvariable=FTP_PASS, width=225, show="*").place(x=100, y=75)
+
+username_var = StringVar()
+Label(main, text="Username:").place(x=5, y=110)
+Entry(main, textvariable=username_var, width=225).place(x=100, y=110)
+
+chat_file_name = StringVar()
+Label(main, text="Chat File:").place(x=5, y=146)
+Entry(main, textvariable=chat_file_name, width=201).place(x=100, y=146)
+
+done_butt = Button(
+    main,
+    text="Done",
+    command=lambda: start_loop(),
+    width=20,
+    bootstyle="primary",
+)
+done_butt.place(x=1730, y=146)
+
+Label(main, text="Chat:").place(x=5, y=180)
+chat_notes = ScrolledText(main, width=233, height=16)
+chat_notes.place(x=5, y=210)
+chat_notes.see("end")
+chat_notes.config(state=DISABLED)
+
+Label(main, text="Message:").place(x=5, y=547)
+msg = ScrolledText(main, width=233, height=16)
+msg.place(x=5, y=575)
+
+send_butt = Button(
+    main,
+    text="Send",
+    command=lambda: send_messages(username_var.get(), msg.get("1.0", "end")),
+    width=235,
+    bootstyle="primary",
+    state=DISABLED
+).place(x=5, y=920)
+
+main.mainloop()
