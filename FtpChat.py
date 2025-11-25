@@ -1402,7 +1402,7 @@ def start_loop():
 
 
 main = Window(themename="darkly")
-main.title("TLock")
+main.title("FTPChat")
 main.geometry("1920x1080")
 main.state("zoomed")
 menubar = Menu(main)
