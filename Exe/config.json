@@ -7,7 +7,11 @@
   },
   {
    "optionDest": "filenames",
+<<<<<<< HEAD
    "value": "D:/Projects/Python/FtpChat/FtpChat 1.5/FTPChat/FtpChat.py"
+=======
+   "value": "D:/Projects/Python/FtpChat/FtpChat 1.4/FTPChat/FtpChat.py"
+>>>>>>> 3344b46332d948c5608295b5422707496dbd51af
   },
   {
    "optionDest": "onefile",
@@ -19,7 +23,11 @@
   },
   {
    "optionDest": "icon_file",
+<<<<<<< HEAD
    "value": "D:/Projects/Python/FtpChat/FtpChat 1.5/FTPChat/Documentation/Pictures/logo.ico"
+=======
+   "value": "D:/Projects/Python/FtpChat/FtpChat 1.4/FTPChat/Documentation/Pictures/logo.ico"
+>>>>>>> 3344b46332d948c5608295b5422707496dbd51af
   },
   {
    "optionDest": "clean_build",
