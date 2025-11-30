@@ -1,6 +1,6 @@
 """
 FTPChat - Encrypted FTP-based Messaging Protocol
-Version 1.4 — November 2025
+Version 1.5 — December 2025
 Type: Custom-styled MIT LICENSE
 Author: Ahmed Omar Saad
 Contact: ahmedomardev@outlook.com
@@ -27,7 +27,7 @@ FTPChat  © 2025/5/20 by Ahmed Omar Saad is licensed under CC BY-NC-SA 4.0. To v
 *The author may offer separate commercial licenses for enterprise or closed-source use. Contact ahmedomardev@outlook.com for inquiries.
 *This license applies to all source code, documentation, and project specifications included in the FTPChat project.
 """
-
+from base64 import b64decode, b64encode
 from datetime import datetime
 from ftplib import FTP, FTP_TLS
 from threading import Thread
@@ -46,7 +46,6 @@ from ttkbootstrap import (
 )
 from tkinter import messagebox
 from zlib import compress, decompress
-from base64 import b64encode, b64decode
 
 
 def help_func():
@@ -1298,10 +1297,8 @@ def decrypt(text: str) -> str:
 
 
 def send_message_non(username, message):
-    msg_e = encrypt(
-        f"{datetime.now().strftime('%Y-%m-%d %H:%M')}:{username}: {message}"
-    )
-    msg.delete("1.0", "end")
+    msg = encrypt(
+        f"{datetime.now().strftime('%Y-%m-%d %H:%M')}:{username}: {message}")
     ftp_host = FTP_HOST.get()
     ftp_user = FTP_USER.get()
     ftp_pass = FTP_PASS.get()
@@ -1323,7 +1320,7 @@ def send_message_non(username, message):
             pass
 
         with open(local_temp, "w", encoding="utf-8") as f:
-            f.write(f"{msg_e}\n")
+            f.write(f"{msg}\n")
 
         with open(local_temp, "rb") as f:
             ftp.storbinary(f"APPE " + chat_name, f)
@@ -1346,12 +1343,13 @@ def read_messages_non():
     ftp_pass = FTP_PASS.get()
     chat_name = f"{chat_file_name.get()}.txt"
     local_temp = "chat_temp.txt"
-
+ 
     try:
         try:
             ftp = FTP_TLS(ftp_host)
             ftp.login(ftp_user, ftp_pass)
         except Exception as e:
+            print(f"FTPS failed ({e}), falling back to FTP...")
             ftp = FTP(ftp_host)
             ftp.login(ftp_user, ftp_pass)
 
@@ -1395,14 +1393,13 @@ def auto_refresh_func():
 
 
 def start_loop():
-    send_butt.config(state=NORMAL)
     auto_refresh_func()
     done_butt.config(state=DISABLED)
     done_butt.config(text="Loop Started")
 
 
 main = Window(themename="darkly")
-main.title("TLock")
+main.title("FTPChat")
 main.geometry("1920x1080")
 main.state("zoomed")
 menubar = Menu(main)
@@ -1441,7 +1438,6 @@ done_butt = Button(
     text="Done",
     command=lambda: start_loop(),
     width=20,
-    bootstyle="primary",
 )
 done_butt.place(x=1730, y=146)
 
@@ -1460,8 +1456,7 @@ send_butt = Button(
     text="Send",
     command=lambda: send_messages(username_var.get(), msg.get("1.0", "end")),
     width=235,
-    bootstyle="primary",
-    state=DISABLED
 ).place(x=5, y=920)
+
 
 main.mainloop()
